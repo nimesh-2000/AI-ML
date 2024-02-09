@@ -36,7 +36,7 @@ def get_all_data():
     cursor = connection.cursor(dictionary=True)
 
     # Retrieve all data from the database
-    query = "SELECT * FROM feedbacksentimate"
+    query = "SELECT(SELECT COUNT(*) FROM feedBackSentimate WHERE type = 'positive') as positive_count,(SELECT COUNT(*) FROM feedBackSentimate WHERE type = 'negative') as negative_count;"
     cursor.execute(query)
     data = cursor.fetchall()
 
@@ -64,6 +64,38 @@ def get_chart_data():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        # Get login data from request
+        login_data = request.json
+        name = login_data.get('name')
+        password = login_data.get('password')
+
+        # Validate login data
+        if not name or not password:
+            return jsonify({'error': 'Username and password are required'}), 400
+
+        # Check if user exists
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor(dictionary=True)
+        
+        # Select user by username
+        cursor.execute("SELECT * FROM user WHERE name = %s AND password = %s", (name, password))
+
+        user = cursor.fetchone()  # Fix the variable name from "cur" to "cursor"
+        cursor.close()  # Fix the method name from "cur.close()" to "cursor.close()"
+
+        if not user:
+            return jsonify({'error': 'Invalid username or password'}), 401  # HTTP 401 Unauthorized status code
+
+        # Handle successful login
+        return jsonify({'message': 'Login successful'}), 200
+
+    except Exception as e:
+        # Handle other exceptions if necessary
+        return jsonify({'error': 'An error occurred'}), 500
+
 @app.route('/get_pie_chart_data', methods=['GET'])
 def get_pie_chart_data():
     try:
@@ -86,8 +118,8 @@ def get_pie_chart_data():
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
     model_name = 'nlptown/bert-base-multilingual-uncased-sentiment'
-    csv_file_path_1 = 'F:\\BackEnd(ML)\\data\\British_Air_Customer_Reviews.csv'
-    csv_file_path_2 = 'F:\\BackEnd(ML)\\data\\clusters.csv'
+    csv_file_path_1 = 'https://feedbacksentimate.s3.ap-south-1.amazonaws.com/uploads/British_Air_Customer_Reviews.csv'
+    csv_file_path_2 = 'https://feedbacksentimate.s3.ap-south-1.amazonaws.com/uploads/clusters.csv'
 
     my_model = Model(model_name, csv_file_path_1, csv_file_path_2)
     feedbacks = my_model.data_1['feedback'].tolist()[:20]
