@@ -115,8 +115,9 @@ def get_pie_chart_data():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+if __name__ == '__main__':
+    # app.run(debug=True)
+    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=80)
     model_name = 'nlptown/bert-base-multilingual-uncased-sentiment'
     csv_file_path_1 = 'https://feedbacksentimate.s3.ap-south-1.amazonaws.com/uploads/British_Air_Customer_Reviews.csv'
     csv_file_path_2 = 'https://feedbacksentimate.s3.ap-south-1.amazonaws.com/uploads/clusters.csv'
