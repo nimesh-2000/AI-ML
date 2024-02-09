@@ -53,8 +53,8 @@ def get_all_data():
     cursor = connection.cursor(dictionary=True)
 
     # Retrieve all data from the database
-    query = "SELECT(SELECT COUNT(*) FROM feedBackSentimate WHERE type = 'positive') as positive_count," \
-            "(SELECT COUNT(*) FROM feedBackSentimate WHERE type = 'negative') as negative_count;"
+    query = "SELECT(SELECT COUNT(*) FROM feedbacksentimate WHERE type = 'positive') as positive_count," \
+            "(SELECT COUNT(*) FROM feedbacksentimate WHERE type = 'negative') as negative_count;"
     cursor.execute(query)
     data = cursor.fetchall()
 
